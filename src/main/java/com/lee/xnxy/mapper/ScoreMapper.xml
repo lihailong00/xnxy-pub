@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lee.xnxy.mapper.ScoreMapper">
+
+    <resultMap id="BaseResultMap" type="com.lee.xnxy.model.dao.course.Score">
+        <id property="id" column="id" jdbcType="BIGINT"/>
+        <result property="xh" column="xh" jdbcType="INTEGER"/>
+        <result property="kkxq" column="kkxq" jdbcType="VARCHAR"/>
+        <result property="kcbh" column="kcbh" jdbcType="VARCHAR"/>
+        <result property="kcmc" column="kcmc" jdbcType="VARCHAR"/>
+        <result property="cj" column="cj" jdbcType="DECIMAL"/>
+        <result property="cjbs" column="cjbs" jdbcType="VARCHAR"/>
+        <result property="xf" column="xf" jdbcType="DECIMAL"/>
+        <result property="zxs" column="zxs" jdbcType="INTEGER"/>
+        <result property="khfs" column="khfs" jdbcType="VARCHAR"/>
+        <result property="kcsx" column="kcsx" jdbcType="VARCHAR"/>
+        <result property="kcxz" column="kcxz" jdbcType="VARCHAR"/>
+        <result property="jwcUsername" column="jwc_username" jdbcType="VARCHAR"/>
+        <result property="cjzw" column="cjzw" jdbcType="VARCHAR"/>
+        <result property="teacherName" column="teacher_name" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,xh,kkxq,
+        kcbh,kcmc,cj,
+        cjbs,xf,zxs,
+        khfs,kcsx,kcxz,
+        jwc_username,cjzw,teacher_name
+    </sql>
+</mapper>

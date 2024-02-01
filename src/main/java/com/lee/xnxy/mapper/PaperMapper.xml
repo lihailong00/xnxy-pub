@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lee.xnxy.mapper.PaperMapper">
+
+    <resultMap id="BaseResultMap" type="com.lee.xnxy.model.dao.paper.Paper">
+            <id property="paId" column="pa_id" jdbcType="BIGINT"/>
+            <result property="paperName" column="paper_name" jdbcType="VARCHAR"/>
+            <result property="paperDesc" column="paper_desc" jdbcType="VARCHAR"/>
+            <result property="author" column="author" jdbcType="VARCHAR"/>
+            <result property="price" column="price" jdbcType="INTEGER"/>
+            <result property="viewCount" column="view_count" jdbcType="INTEGER"/>
+            <result property="downloadCount" column="download_count" jdbcType="INTEGER"/>
+            <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+            <result property="paperImage" column="paper_image" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        pa_id,paper_name,paper_desc,
+        author,price,view_count,
+        download_count,update_time,paper_image,
+        paper_content
+    </sql>
+    <select id="listPaper" resultType="com.lee.xnxy.model.dao.paper.Paper">
+        select pa_id, paper_name, paper_desc, author, price, view_count, download_count, update_time, paper_image from xnxy_paper
+        <if test="keyword != null and keyword.length() > 0">
+            WHERE xnxy_paper.paper_name like #{keyword}
+        </if>
+        order by update_time limit ${(pageNumber - 1) * pageSize}, ${pageSize}
+    </select>
+</mapper>

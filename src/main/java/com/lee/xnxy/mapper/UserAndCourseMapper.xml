@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lee.xnxy.mapper.UserAndCourseMapper">
+
+    <resultMap id="BaseResultMap" type="com.lee.xnxy.model.dao.course.UserAndCourse">
+        <id property="id" column="id" jdbcType="BIGINT"/>
+        <result property="jwcUsername" column="jwc_username" jdbcType="VARCHAR"/>
+        <result property="kcbh" column="kcbh" jdbcType="VARCHAR"/>
+        <result property="kxh" column="kxh" jdbcType="INTEGER"/>
+        <result property="kkxq" column="kkxq" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,jwc_username,kcbh,
+        kxh,kkxq
+    </sql>
+</mapper>

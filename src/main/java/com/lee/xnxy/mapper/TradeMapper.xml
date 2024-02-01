@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lee.xnxy.mapper.TradeMapper">
+
+    <resultMap id="BaseResultMap" type="com.lee.xnxy.model.dao.trade.Trade">
+        <id property="gId" column="g_id" jdbcType="BIGINT"/>
+        <result property="uId" column="u_id" jdbcType="BIGINT"/>
+        <result property="name" column="content" jdbcType="VARCHAR"/>
+        <result property="content" column="content" jdbcType="VARCHAR"/>
+        <result property="imageList" column="image_list" jdbcType="VARCHAR"/>
+        <result property="price" column="price" jdbcType="DECIMAL"/>
+        <result property="hasDeleted" column="has_deleted" jdbcType="TINYINT"/>
+        <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+        <result property="ip" column="ip" jdbcType="VARCHAR"/>
+        <result property="ipArea" column="ip_area" jdbcType="VARCHAR"/>
+        <result property="viewCount" column="view_count" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        g_id,u_id,name,content,
+        image_list,price,has_deleted,
+        create_time,ip,ip_area,view_count
+    </sql>
+    <update id="viewGoods">
+        update xnxy_trade set view_count = view_count + 1 where g_id = #{goodsId}
+    </update>
+
+    <select id="listGoods" resultType="com.lee.xnxy.model.dao.trade.Trade">
+        <if test="keyword == null || keyword.length() == 0">
+            select * from xnxy_trade where has_deleted = 0
+             <if test="userId != null">
+                 AND u_id = #{userId}
+             </if>
+            <if test="cond=='time'">
+                order by create_time DESC
+            </if>
+            <if test="cond=='price'">
+                order by price
+            </if>
+            LIMIT ${(pageNumber - 1) * pageSize}, ${pageSize}
+        </if>
+
+        <if test="keyword != null and keyword.length() > 0" >
+            SELECT * FROM xnxy_trade WHERE MATCH(name) against(#{keyword})
+            <if test="userId != null">
+                AND u_id = #{userId}
+            </if>
+
+            AND has_deleted=0
+
+            <if test="cond=='time'">
+                ORDER BY create_time DESC
+            </if>
+            <if test="cond=='price'">
+                ORDER BY price
+            </if>
+            LIMIT ${(pageNumber - 1) * pageSize}, ${pageSize}
+        </if>
+    </select>
+</mapper>

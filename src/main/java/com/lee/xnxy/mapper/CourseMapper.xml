@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lee.xnxy.mapper.CourseMapper">
+
+    <resultMap id="BaseResultMap" type="com.lee.xnxy.model.dao.course.Course">
+            <id property="id" column="id" jdbcType="BIGINT"/>
+            <result property="kcbh" column="kcbh" jdbcType="VARCHAR"/>
+            <result property="kxh" column="kxh" jdbcType="INTEGER"/>
+            <result property="kcmc" column="kcmc" jdbcType="VARCHAR"/>
+            <result property="xf" column="xf" jdbcType="DECIMAL"/>
+            <result property="kcsx" column="kcsx" jdbcType="VARCHAR"/>
+            <result property="xkjd" column="xkjd" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,kcbh,kxh,
+        kcmc,xf,kcsx,
+        xkjd
+    </sql>
+    <select id="getCourseByCourseName" resultType="com.lee.xnxy.model.dto.course.GetCourseByCourseNameDTO">
+        select
+            u_a_c.kcbh, u_a_c.kxh,
+            s.kcmc,
+            c_a_t.teacher_name,
+            avg(s.cj) as average_score,
+            count(s.jwc_username) as total_people
+        from
+            xnxy_score as s,
+            xnxy_user_and_course as u_a_c,
+            xnxy_course_and_teacher as c_a_t
+        where
+            s.jwc_username = u_a_c.jwc_username and s.kcbh = u_a_c.kcbh
+          and u_a_c.kcbh = c_a_t.kcbh and u_a_c.kxh = c_a_t.kxh
+          and s.kcmc = #{courseName}
+        group by u_a_c.kcbh, u_a_c.kxh, s.kcmc, c_a_t.teacher_name;
+    </select>
+
+    <select id="getCourseByTeacherName" resultType="com.lee.xnxy.model.dto.course.GetCourseByTeacherNameDTO">
+        select
+            c_a_t.kcbh, c_a_t.kxh, c_a_t.teacher_name,
+            s.kcmc, avg(s.cj) as average_score, count(s.jwc_username) as total_people
+        from
+            xnxy_score as s,
+            xnxy_user_and_course as u_a_c,
+            xnxy_course_and_teacher as c_a_t
+        where
+            s.kcbh = u_a_c.kcbh and s.jwc_username = u_a_c.jwc_username
+          and c_a_t.kcbh = u_a_c.kcbh and c_a_t.kxh = u_a_c.kxh
+          and c_a_t.teacher_name = #{teacherName}
+        group by
+            c_a_t.kcbh, c_a_t.kxh, c_a_t.teacher_name,
+            s.kcmc
+        ;
+    </select>
+    <select id="getCourseInfoByKcbhAndKxh"
+            resultType="com.lee.xnxy.model.dto.course.GetCourseInfoByKcbhAndKxhDTO">
+        select
+        u_a_c.kcbh, u_a_c.kxh, s.kcmc, s.xf, s.zxs, s.khfs, s.kcsx, s.kcxz, c_a_t.teacher_name, count(*) as total_student, avg(s.cj) as average_score,
+        sum(case when s.cj <![CDATA[ < ]]> 60 then 1 else 0 end) as fail,
+        sum(case when s.cj >= 60 and s.cj <![CDATA[ < ]]> 70 then 1 else 0 end) as pass,
+        sum(case when s.cj >= 70 and s.cj <![CDATA[ < ]]> 80 then 1 else 0 end) as intermediate,
+        sum(case when s.cj >= 80 and s.cj <![CDATA[ < ]]> 90 then 1 else 0 end) as good,
+        sum(case when s.cj >= 90 and s.cj <![CDATA[ <= ]]> 100 then 1 else 0 end) as outstanding
+        from
+        xnxy_score as s,
+        xnxy_user_and_course as u_a_c,
+        xnxy_course_and_teacher as c_a_t
+        where
+        s.kcbh = u_a_c.kcbh
+        and s.jwc_username = u_a_c.jwc_username
+        and u_a_c.kcbh = #{kcbh} and u_a_c.kxh = #{kxh}
+        and c_a_t.kcbh = #{kcbh} and c_a_t.kxh = #{kxh}
+        group by u_a_c.kcbh, u_a_c.kxh, s.kcmc, s.xf, s.zxs, s.khfs, s.kcsx, s.kcxz, c_a_t.teacher_name
+        ;
+    </select>
+<!--    查出来的数据判断相同的标准为kcmc和teacherName-->
+    <select id="getAllCourse" resultType="com.lee.xnxy.model.dto.course.GetAllCourseDTO">
+        select kcmc, teacher_name, xf from xnxy_score
+        <if test="keyword != null and keyword.length() > 0">
+            WHERE kcmc like #{keyword}
+        </if>
+        group by kcmc, teacher_name, xf
+        ORDER BY
+            kcmc, teacher_name
+        LIMIT
+            ${(pageNumber - 1) * pageSize}, ${pageSize}
+    </select>
+    <select id="getCourseTable" resultType="com.lee.xnxy.model.dto.course.GetCourseTableDTO">
+        select c.kcbh, c.kxh, c.kcmc, c.xf, c.kcsx, c.xkjd, GROUP_CONCAT(c_a_t.teacher_name SEPARATOR ',') as teacher_name,
+               c_a_t_w_p.week, c_a_t_w_p.day, c_a_t_w_p.start_section, c_a_t_w_p.end_section, c_a_t_w_p.place
+        from
+            xnxy_user_and_course as u_a_c,
+            xnxy_course as c,
+            xnxy_course_and_teacher as c_a_t,
+            xnxy_course_and_time_with_place as c_a_t_w_p
+        where
+            c.kcbh = u_a_c.kcbh and c.kxh = u_a_c.kxh
+          and c.kcbh = c_a_t.kcbh and c.kxh = c_a_t.kxh
+          and c.kcbh = c_a_t_w_p.kcbh and c.kxh = c_a_t_w_p.kxh
+          and u_a_c.jwc_username = #{jwcUsername} and u_a_c.kkxq = #{nowTerm}
+        GROUP BY
+            c.kcbh, c.kxh, c.kcmc, c.xf, c.kcsx, c.xkjd, c_a_t_w_p.week, c_a_t_w_p.day, c_a_t_w_p.start_section, c_a_t_w_p.end_section, c_a_t_w_p.place
+        ORDER BY
+            week, day, start_section;
+    </select>
+    <select id="getRecentCourse" resultType="com.lee.xnxy.model.dto.course.GetRecentCourseDTO">
+        SELECT
+            u_a_c.jwc_username,
+            c.kcbh,
+            c.kxh,
+            c.kcmc,
+            c.xf,
+            c.kcsx,
+            c.xkjd,
+            c_a_t_w_p.week,
+            c_a_t_w_p.day,
+            c_a_t_w_p.start_section,
+            c_a_t_w_p.end_section
+        FROM
+            xnxy_course AS c,
+            xnxy_course_and_time_with_place AS c_a_t_w_p,
+            xnxy_user_and_course AS u_a_c
+        WHERE
+            c.kcbh = c_a_t_w_p.kcbh AND c.kxh = c_a_t_w_p.kxh
+          AND c.kcbh = u_a_c.kcbh AND c.kxh = u_a_c.kxh
+          AND u_a_c.jwc_username = #{jwcUsername}
+          AND u_a_c.kkxq = #{kkxq}
+          AND (c_a_t_w_p.week >= #{startWeek}
+          AND c_a_t_w_p.day >= #{startDay}
+          <if test="startWeek != endWeek">
+              AND c_a_t_w_p.week <![CDATA[ <= ]]> #{startWeek}
+              AND c_a_t_w_p.day <![CDATA[ <= ]]> 7
+
+              OR c_a_t_w_p.week >= #{endWeek}
+              AND c_a_t_w_p.day >= 1
+          </if>
+          AND c_a_t_w_p.week <![CDATA[ <= ]]> #{endWeek}
+          AND c_a_t_w_p.day <![CDATA[ <= ]]> #{endDay})
+        ORDER BY
+            c_a_t_w_p.week ASC,
+            c_a_t_w_p.day ASC,
+            c_a_t_w_p.start_section ASC,
+            c_a_t_w_p.end_section ASC;
+    </select>
+    <select id="getCourseInfoByKcmcAndTeacherName"
+            resultType="com.lee.xnxy.model.dto.course.GetCourseInfoByKcmcAndTeacherNameDTO">
+        select kcmc, teacher_name, xf, zxs, count(*) as total_student, round(avg(cj), 2) as average_score,
+               COUNT(CASE WHEN cj BETWEEN 90 AND 100 THEN 1 END) as 'outstanding',
+                COUNT(CASE WHEN cj BETWEEN 80 AND 89 THEN 1 END) as 'good',
+                COUNT(CASE WHEN cj BETWEEN 70 AND 79 THEN 1 END) as 'intermediate',
+                COUNT(CASE WHEN cj BETWEEN 60 AND 69 THEN 1 END) as 'pass',
+                COUNT(CASE WHEN cj BETWEEN 0 AND 59 THEN 1 END) as 'fail'
+        from xnxy_score
+        where kcmc = #{kcmc} and teacher_name=#{teacherName}
+        group by kcmc, teacher_name, xf, zxs;
+    </select>
+    <select id="getCourseHistoryInfoByKcmcAndTeacherName"
+            resultType="com.lee.xnxy.model.dto.course.GetCourseHistoryInfoByKcmcAndTeacherNameDTO">
+
+    </select>
+
+</mapper>

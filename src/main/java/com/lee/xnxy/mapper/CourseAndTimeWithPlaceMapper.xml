@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lee.xnxy.mapper.CourseAndTimeWithPlaceMapper">
+
+    <resultMap id="BaseResultMap" type="com.lee.xnxy.model.dao.course.CourseAndTimeWithPlace">
+            <id property="id" column="id" jdbcType="BIGINT"/>
+            <result property="kcmc" column="kcmc" jdbcType="VARCHAR"/>
+            <result property="kcbh" column="kcbh" jdbcType="VARCHAR"/>
+            <result property="kxh" column="kxh" jdbcType="INTEGER"/>
+            <result property="week" column="week" jdbcType="INTEGER"/>
+            <result property="day" column="day" jdbcType="INTEGER"/>
+            <result property="startSection" column="start_section" jdbcType="INTEGER"/>
+            <result property="endSection" column="end_section" jdbcType="INTEGER"/>
+            <result property="place" column="place" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,kcmc,kcbh,
+        kxh,week,day,
+        start_section,end_section,place
+    </sql>
+</mapper>

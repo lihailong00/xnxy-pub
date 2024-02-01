@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration scan="true" scanPeriod="10 seconds">
+    <!--property 的name是变量的名称，value是变量的值-->
+    <!-- 日志存放路径 -->
+    <property name="log.path" value="logs" />
+    <!-- 日志输出格式 -->
+    <!--%d表示日期，%thread表示当前先从名，%-5level表示从左显示5个字符宽度，%msg表示日志消息，%n是换行符-->
+    <property name="log.pattern" value="%d{HH:mm:ss.SSS} [%thread] %-5level %logger{20} - [%method,%line] - %msg%n" />
+
+    <!-- 控制台输出 -->
+    <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
+        <!--显示日志最低级别，默认是info-->
+        <!--         <filter class="ch.qos.logback.classic.filter.ThresholdFilter">-->
+        <!--             <level>debug</level>-->
+        <!--         </filter>-->
+
+        <encoder>
+            <pattern>${log.pattern}</pattern>
+            <!-- 设置字符集 -->
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+
+    <!-- 系统info日志输出 -->
+    <appender name="file_info" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <!-- 正在记录的日志文档的路径及文档名 -->
+        <file>${log.path}/info/sys-info.log</file>
+        <!--日志的滚动策略有3种，按照自己的需求任选一种-->
+        <!-- 基于时间创建日志文件(最常见，建议使用) -->
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!-- 日志文件名格式 -->
+            <fileNamePattern>${log.path}/sys-info.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <!-- 日志最大的历史 60天 -->
+            <maxHistory>60</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>${log.pattern}</pattern>
+            <!-- 设置字符集 -->
+            <charset>UTF-8</charset>
+        </encoder>
+
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <!-- 过滤的级别 -->
+            <level>INFO</level>
+            <!-- 匹配时的操作：接收（记录） -->
+            <onMatch>ACCEPT</onMatch>
+            <!-- 不匹配时的操作：拒绝（不记录） -->
+            <onMismatch>DENY</onMismatch>
+        </filter>
+    </appender>
+
+    <!-- 系统error日志输出 -->
+    <appender name="file_error" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${log.path}/error/sys-error.log</file>
+        <!-- 循环政策：基于时间创建日志文件 -->
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!-- 日志文件名格式 -->
+            <fileNamePattern>${log.path}/sys-error.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <!-- 日志最大的历史 60天 -->
+            <maxHistory>60</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>${log.pattern}</pattern>
+            <!-- 设置字符集 -->
+            <charset>UTF-8</charset>
+        </encoder>
+
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <!-- 过滤的级别 -->
+            <level>ERROR</level>
+            <!-- 匹配时的操作：接收（记录） -->
+            <onMatch>ACCEPT</onMatch>
+            <!-- 不匹配时的操作：拒绝（不记录） -->
+            <onMismatch>DENY</onMismatch>
+        </filter>
+    </appender>
+
+    <appender name="async_file_info" class="ch.qos.logback.classic.AsyncAppender">
+        <!--  当队列的剩余容量小于这个阈值并且当前日志level为 TRACE, DEBUG or INFO ，则丢弃这些日志。  -->
+        <discardingThreshold>0</discardingThreshold>
+        <!--  更改默认的队列的深度,该值会影响性能.默认值为256  -->
+        <queueSize>1024</queueSize>
+        <!--  新增这行为了打印栈堆信息  -->
+        <includeCallerData>true</includeCallerData>
+        <!--  添加附加的appender,最多只能添加一个  -->
+        <appender-ref ref="file_info"/>
+    </appender>
+    <appender name="async_file_error" class="ch.qos.logback.classic.AsyncAppender">
+        <!--  当队列的剩余容量小于这个阈值并且当前日志level为 TRACE, DEBUG or INFO ，则丢弃这些日志。  -->
+        <discardingThreshold>0</discardingThreshold>
+        <!--  更改默认的队列的深度,该值会影响性能.默认值为256  -->
+        <queueSize>1024</queueSize>
+        <!--  新增这行为了打印栈堆信息  -->
+        <includeCallerData>true</includeCallerData>
+        <!--  添加附加的appender,最多只能添加一个  -->
+        <appender-ref ref="file_error"/>
+    </appender>
+
+    <!-- 系统模块日志级别控制  -->
+    <logger name="cn.xj" level="info" />
+    <!-- Spring日志级别控制  -->
+    <logger name="org.springframework" level="warn" />
+
+    <!--系统操作日志-->
+    <root level="info">
+        <appender-ref ref="console" />
+        <appender-ref ref="async_file_info" />
+        <appender-ref ref="async_file_error" />
+    </root>
+</configuration>

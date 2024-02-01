@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lee.xnxy.mapper.LifeMapper">
+
+    <resultMap id="BaseResultMap" type="com.lee.xnxy.model.dao.posts.Posts">
+            <id property="pId" column="p_id" jdbcType="BIGINT"/>
+            <result property="uId" column="u_id" jdbcType="BIGINT"/>
+            <result property="title" column="title" jdbcType="VARCHAR"/>
+            <result property="content" column="content" jdbcType="VARCHAR"/>
+            <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+            <result property="hasDeleted" column="has_deleted" jdbcType="TINYINT"/>
+            <result property="ip" column="ip" jdbcType="VARCHAR"/>
+        <result property="viewCount" column="view_count" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        p_id,u_id,title,
+        content,create_time,
+        has_deleted,ip,view_count
+    </sql>
+    <update id="viewPosts">
+        update life set view_count = view_count + 1 where p_id = #{postId}
+    </update>
+    <select id="listPosts" resultType="com.lee.xnxy.model.dao.posts.Posts">
+        <if test="keyword != null and keyword.length() > 0">
+            SELECT * FROM life WHERE
+           <if test="userId != null">
+               u_id = #{userId} AND
+           </if>
+           MATCH(title) against(#{keyword}) AND has_deleted=0 LIMIT ${(pageNumber - 1) * pageSize}, ${pageSize}
+        </if>
+        <if test="keyword == null or keyword.length() == 0">
+            select * from life where 1 = 1
+            <if test="userId != null">
+                and u_id = #{userId}
+            </if>
+            AND has_deleted=0
+            order by create_time desc
+            LIMIT ${(pageNumber - 1) * pageSize}, ${pageSize}
+        </if>
+    </select>
+
+</mapper>
